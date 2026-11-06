@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cy12的数学小组</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --accent: #58a6ff;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header-icons {
+      margin-left: auto;
+      display: flex;
+      gap: 16px;
+    }
+
+    .header-icons svg {
+      color: var(--text2);
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      transition: color 0.2s;
+    }
+
+    .header-icons svg:hover,
+    .header-icons a:hover svg { color: var(--accent); }
+
+    /* Bio */
+    .bio {
+      color: var(--text);
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Article list */
+    /*
+     * Apple 连续曲率圆角（squircle 近似）：
+     * 外层卡片 R_out=14px，内层内容面 R_in=10px
+     * R_in = R_out - (2*R_out-1)*k，k=2.5px → 14 - 27*2.5/14 ≈ 9.9 → 10px
+     * 中间 1px 边框环连接内外两条曲线，四个角上曲率连续过渡
+     */
+    .article-list {
+      position: relative;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      overflow: hidden;
+      padding: 1px;
+    }
+    .article-list::before {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: 10px;
+      background: var(--bg2);
+      z-index: 0;
+    }
+    .article-list > .article-item {
+      position: relative;
+      z-index: 1;
+      background: transparent;
+    }
+
+    .article-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .article-item:last-child { border-bottom: none; }
+    .article-item:hover { background: rgba(255,255,255,.04); }
+
+    .article-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      fill: var(--text2);
+    }
+
+    .article-title {
+      flex: 1;
+      font-size: 1.05rem;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="头像.jpg" alt="avatar" class="avatar">
+      <h1>cy12的数学小组</h1>
+      <div class="header-icons">
+        <!-- Search -->
+        <svg id="searchBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="10.5" cy="10.5" r="6.5"/>
+          <line x1="15.2" y1="15.2" x2="21" y2="21"/>
+        </svg>
+        <!-- Home -->
+        <a href="index.html" id="homeBtn" style="display:flex;align-items:center;text-decoration:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 10.5 12 3.5l8 7"/>
+            <path d="M6 9.5V20h4v-5h4v5h4V9.5"/>
+          </svg>
+        </a>
+        <!-- Moon / Sun toggle -->
+        <svg id="themeBtn" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/>
+        </svg>
+      </div>
+    </header>
+
+    <p class="bio">想，全是问题；做，才有答案。</p>
+
+    <div class="article-list" id="articleList">
+
+    <a class="article-item" href="blogs/1-说明.html">
+      <svg class="article-icon" viewBox="0 0 16 16"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25z"/><path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 2.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/></svg>
+      <span class="article-title">说明</span>
+    </a>
+    <a class="article-item" href="blogs/2-函数与函数的应用.html">
+      <svg class="article-icon" viewBox="0 0 16 16"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25z"/><path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 2.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"/></svg>
+      <span class="article-title">函数与函数的应用</span>
+    </a>
+  </div>
+
+
+    <!-- Search Modal -->
+    <div id="searchModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;width:90%;max-width:500px">
+        <input id="searchInput" type="text" placeholder="搜索文章…"
+          style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:1rem;outline:none">
+        <div id="searchResults" style="margin-top:12px;max-height:300px;overflow-y:auto"></div>
+        <p style="color:var(--text2);font-size:.8rem;margin-top:8px">按 ESC 关闭</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle
+    const themeBtn = document.getElementById('themeBtn');
+    const moonPath = '<path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/>';
+    const sunPath  = '<circle cx="12" cy="12" r="4"/><line x1="12" y1="2.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21.5" y2="12"/><line x1="5.3" y1="5.3" x2="7" y2="7"/><line x1="17" y1="17" x2="18.7" y2="18.7"/><line x1="5.3" y1="18.7" x2="7" y2="17"/><line x1="17" y1="7" x2="18.7" y2="5.3"/>';
+    let dark = true;
+    themeBtn.addEventListener('click', () => {
+      dark = !dark;
+      document.documentElement.style.setProperty('--bg', dark ? '#0d1117' : '#f6f8fa');
+      document.documentElement.style.setProperty('--bg2', dark ? '#161b22' : '#ffffff');
+      document.documentElement.style.setProperty('--border', dark ? '#30363d' : '#d0d7de');
+      document.documentElement.style.setProperty('--text', dark ? '#e6edf3' : '#1f2328');
+      document.documentElement.style.setProperty('--text2', dark ? '#8b949e' : '#656d76');
+      document.documentElement.style.setProperty('--accent', dark ? '#58a6ff' : '#0969da');
+      themeBtn.setAttribute('stroke', dark ? '#00d4ff' : '#f0883e');
+      themeBtn.innerHTML = dark ? moonPath : sunPath;
+    });
+
+    // Search modal
+    const searchBtn = document.getElementById('searchBtn');
+    const searchModal = document.getElementById('searchModal');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+
+    // 文章数据：直接从首页列表读取
+    const articles = [...document.querySelectorAll('.article-item')].map(el => ({
+      title: el.querySelector('.article-title')?.textContent.trim() || '',
+      file: el.getAttribute('href'),
+    }));
+
+    searchBtn.addEventListener('click', () => {
+      searchModal.style.display = 'flex';
+      searchInput.value = '';
+      searchInput.focus();
+      searchResults.innerHTML = '';
+    });
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) { searchResults.innerHTML = ''; return; }
+      const hits = articles.filter(a => a.title.toLowerCase().includes(q));
+      searchResults.innerHTML = hits.length
+        ? hits.map(a => `<a href="${a.file}" style="display:block;padding:8px 4px;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border)">${a.title}</a>`).join('')
+        : '<p style="color:var(--text2)">无结果</p>';
+    });
+
+    searchModal.addEventListener('click', e => { if (e.target === searchModal) searchModal.style.display = 'none'; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') searchModal.style.display = 'none'; });
+  </script>
+</body>
+</html>
