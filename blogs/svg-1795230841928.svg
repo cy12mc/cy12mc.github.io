@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" font-family="'Times New Roman', 'Times', serif" style="max-width: 600px;">
+  
+  <g id="unit-grid" stroke="#d9d9d9" stroke-width="1" stroke-dasharray="3 4">
+    
+    <line x1="380" y1="120" x2="380" y2="480"/>
+    <line x1="460" y1="120" x2="460" y2="480"/>
+    <line x1="220" y1="120" x2="220" y2="480"/>
+    <line x1="140" y1="120" x2="140" y2="480"/>
+    <line x1="300" y1="120" x2="300" y2="480"/>
+    <line x1="380" y1="120" x2="380" y2="480"/>
+    
+    <line x1="120" y1="460" x2="480" y2="460"/>
+    <line x1="120" y1="380" x2="480" y2="380"/>
+    <line x1="120" y1="140" x2="480" y2="140"/>
+    <line x1="120" y1="220" x2="480" y2="220"/>
+    <line x1="120" y1="300" x2="480" y2="300"/>
+    <line x1="120" y1="380" x2="480" y2="380"/>
+  </g>
+  
+  <g id="axes" stroke="#111111" stroke-width="1.5">
+    
+    <line x1="90" y1="300" x2="510" y2="300"/>
+    
+    <line x1="300" y1="510" x2="300" y2="90"/>
+  </g>
+  
+  <g id="arrows" fill="#111111">
+    
+    <polygon points="510,300 498,294 498,306"/>
+    
+    <polygon points="300,90 294,102 306,102"/>
+  </g>
+  
+  <g id="axis-labels" font-size="18" fill="#111111" font-style="italic">
+    <text x="522" y="306">x</text>
+    <text x="306" y="86">y</text>
+    
+    <text x="290" y="318" text-anchor="end" font-style="normal">O</text>
+  </g>
+  
+  <g id="quadrants" font-size="14" fill="#9a9a9a" font-style="normal">
+    <text x="380" y="180" text-anchor="middle">I</text>
+    <text x="220" y="180" text-anchor="middle">II</text>
+    <text x="220" y="430" text-anchor="middle">III</text>
+    <text x="380" y="430" text-anchor="middle">IV</text>
+  </g>
+  
+  <g id="x-ticks" stroke="#111111" stroke-width="1.2">
+    <line x1="380" y1="294" x2="380" y2="306"/>
+    <line x1="460" y1="294" x2="460" y2="306"/>
+    <line x1="220" y1="294" x2="220" y2="306"/>
+    <line x1="140" y1="294" x2="140" y2="306"/>
+  </g>
+  <g id="x-tick-labels" font-size="15" fill="#444444" font-style="normal" text-anchor="middle">
+    <text x="380" y="326">1</text>
+    <text x="460" y="326">2</text>
+    <text x="220" y="326">−1</text>
+    <text x="140" y="326">−2</text>
+  </g>
+  
+  <g id="y-ticks" stroke="#111111" stroke-width="1.2">
+    <line x1="294" y1="220" x2="306" y2="220"/>
+    <line x1="294" y1="140" x2="306" y2="140"/>
+    <line x1="294" y1="380" x2="306" y2="380"/>
+    <line x1="294" y1="460" x2="306" y2="460"/>
+  </g>
+  <g id="y-tick-labels" font-size="15" fill="#444444" font-style="normal" text-anchor="end">
+    <text x="288" y="225">1</text>
+    <text x="288" y="145">2</text>
+    <text x="288" y="385">−1</text>
+    <text x="288" y="465">−2</text>
+  </g>
+  
+  <circle cx="300" cy="300" r="3.5" fill="#c0392b" stroke="#111111" stroke-width="0.8"/>
+</svg>

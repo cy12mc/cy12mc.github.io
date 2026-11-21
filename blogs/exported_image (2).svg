@@ -1,0 +1,28 @@
+<svg width="204" height="156" viewBox="0 0 102 78" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text {
+        font-family: "Times New Roman", serif;
+        font-style: italic;
+        fill: #007799;
+        font-size: 8.4px;
+      }
+      .line {
+        stroke: #007799;
+        stroke-width: 0.84;
+        fill: none;
+        stroke-linejoin: bevel;
+        stroke-linecap: butt;
+      }
+    </style>
+  </defs>
+
+  <path class="line" d="M18,60 L18,24 L90,60 Z"/>
+  <polyline class="line" points="18,56.4 21.6,56.4 21.6,60"/>
+  <path class="line" d="M81.60,60.00 A8.40,8.40 0 0 1 82.49,56.24"/>
+
+  <text x="8.4"  y="44.4">a</text>
+  <text x="51.6" y="72.0">b</text>
+  <text x="52.8" y="37.2">c</text>
+  <text x="79.2" y="52.8">θ</text>
+</svg>
