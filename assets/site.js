@@ -31,6 +31,21 @@
     });
   }
 
+  /* ── 章节：默认折叠，点击展开 / 再点收回 ────────────────── */
+  var chapterButtons = document.querySelectorAll('.chapter-row');
+  Array.prototype.forEach.call(chapterButtons, function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = document.getElementById(btn.getAttribute('aria-controls'));
+      if (!panel) return;
+      var opened = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!opened));
+      panel.classList.toggle('is-open', !opened);
+      // 收起时立刻移出交互与无障碍树，展开动画期间仍保持可访问
+      panel.inert = opened;
+      panel.setAttribute('aria-hidden', String(opened));
+    });
+  });
+
   /* ── 搜索 ────────────────────────────────────────────────── */
   var searchBtn = document.getElementById('searchBtn');
   var overlay = document.getElementById('searchModal');
@@ -45,6 +60,7 @@
         title: row.getAttribute('data-title') || (titleEl ? titleEl.textContent.trim() : ''),
         summary: row.getAttribute('data-summary') || '',
         tags: row.getAttribute('data-tags') || '',
+        chapter: row.getAttribute('data-chapter') || '',
         href: row.getAttribute('href') || ''
       };
     });
@@ -76,7 +92,7 @@
       if (!q) { results.innerHTML = ''; return; }
       var needle = q.toLowerCase();
       var hits = articles.filter(function (a) {
-        return (a.title + ' ' + a.summary + ' ' + a.tags).toLowerCase().indexOf(needle) !== -1;
+        return (a.title + ' ' + a.summary + ' ' + a.tags + ' ' + a.chapter).toLowerCase().indexOf(needle) !== -1;
       });
       if (!hits.length) {
         results.innerHTML = '<p class="search-empty">没有匹配的笔记</p>';
@@ -84,6 +100,7 @@
       }
       results.innerHTML = hits.map(function (a) {
         return '<a class="search-hit" href="' + escapeHtml(a.href) + '">' +
+          (a.chapter ? '<span class="hit-chapter">' + escapeHtml(a.chapter) + ' ›</span>' : '') +
           '<span class="hit-title">' + highlight(a.title, q) + '</span>' +
           (a.summary ? '<span class="hit-summary">' + escapeHtml(a.summary.slice(0, 70)) + '</span>' : '') +
           '</a>';

@@ -62,6 +62,8 @@ html[data-theme="light"] {
 .search-hit,
 .article-row,
 .article-row::before,
+.chapter-row,
+.chapter-row::before,
 .note-nav a,
 .content pre,
 .content blockquote,
@@ -160,7 +162,10 @@ svg { display: block; }
   color: var(--text);
   text-decoration: none;
 }
-.article-row + .article-row::after {
+.article-row + .article-row::after,
+.article-row + .chapter-row::after,
+.chapter-row + .chapter-row::after,
+.chapter-items + .chapter-row::after {
   content: ''; position: absolute; top: 0; left: 14px; right: 14px;
   height: 1px; background: var(--line);
 }
@@ -174,7 +179,7 @@ svg { display: block; }
 .article-row:hover .article-title, .article-row:focus-visible .article-title { color: var(--accent); }
 
 .row-index {
-  flex: 0 0 30px; padding-top: 4px;
+  flex: 0 0 40px; padding-top: 4px;
   font: 12px/1.6 var(--font-mono); letter-spacing: .04em;
   color: var(--accent);
 }
@@ -192,6 +197,61 @@ svg { display: block; }
 }
 .row-arrow { margin-left: 6px; color: var(--accent); opacity: 0; transition: opacity .12s ease; }
 .article-row:hover .row-arrow, .article-row:focus-visible .row-arrow { opacity: 1; }
+
+/* ── 章节（顶层文件夹）：默认折叠，点击展开 ────────────────── */
+.chapter-row {
+  position: relative; isolation: isolate;
+  display: flex; align-items: flex-start; gap: 14px;
+  width: 100%; min-height: 56px;
+  padding: 16px 14px;
+  background: transparent; border: 0;
+  border-radius: var(--r-card-inner);
+  color: var(--text); font: inherit; text-align: left;
+  cursor: pointer;
+}
+.chapter-row::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: transparent; border-radius: var(--r-card-inner);
+  transition: background-color .12s ease;
+}
+.chapter-row:hover::before, .chapter-row:focus-visible::before,
+.chapter-row[aria-expanded="true"]::before { background: var(--hover); }
+.chapter-row:hover .chapter-title, .chapter-row:focus-visible .chapter-title { color: var(--accent); }
+
+.chapter-index {
+  flex: 0 0 40px; padding-top: 4px; white-space: nowrap;
+  font: 12px/1.6 var(--font-mono); letter-spacing: .04em;
+  color: var(--accent);
+}
+.chapter-main { flex: 1 1 auto; min-width: 0; }
+.chapter-title { display: block; font-size: 18px; font-weight: 500; line-height: 1.4; transition: color .12s ease; }
+.chapter-count {
+  display: block; margin-top: 4px;
+  font: 12px/1.6 var(--font-mono); color: var(--muted);
+}
+.chapter-chevron {
+  flex: 0 0 auto; width: 18px; height: 18px; margin-top: 9px;
+  fill: none; stroke: var(--muted); stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: transform .24s ease, stroke .12s ease;
+}
+.chapter-row:hover .chapter-chevron { stroke: var(--accent); }
+.chapter-row[aria-expanded="true"] .chapter-chevron { transform: rotate(90deg); }
+
+/* 展开动画：grid 行从 0fr 过渡到 1fr，高度由内容决定，不需要 JS 量尺寸 */
+.chapter-items {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .24s ease;
+}
+.chapter-items.is-open { grid-template-rows: 1fr; }
+.chapter-items-inner { min-height: 0; overflow: hidden; }
+.chapter-items .article-row { padding-left: 44px; }
+.chapter-items .row-index { flex-basis: 40px; }
+.chapter-items-inner > .article-row:first-child::after {
+  content: ''; position: absolute; top: 0; left: 14px; right: 14px;
+  height: 1px; background: var(--line);
+}
 
 .site-footer {
   margin-top: 24px;
@@ -246,6 +306,10 @@ kbd {
   color: var(--text);
 }
 .search-hit:hover, .search-hit.is-active { background: var(--hover); }
+.hit-chapter {
+  display: block; margin-bottom: 1px;
+  font: 11px/1.5 var(--font-mono); color: var(--muted);
+}
 .hit-title { display: block; font-size: 15px; font-weight: 500; line-height: 1.5; }
 .hit-summary {
   display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -365,8 +429,17 @@ mark { background: transparent; color: var(--accent); }
   .tagline { font-size: 13px; overflow-wrap: anywhere; }
   .tools { gap: 4px; }
   .article-row { gap: 10px; padding: 14px 10px; }
-  .article-row + .article-row::after { left: 10px; right: 10px; }
-  .row-index { flex-basis: 24px; font-size: 11px; }
+  .article-row + .article-row::after,
+  .article-row + .chapter-row::after,
+  .chapter-row + .chapter-row::after,
+  .chapter-items + .chapter-row::after,
+  .chapter-items-inner > .article-row:first-child::after { left: 10px; right: 10px; }
+  .row-index { flex-basis: 34px; font-size: 11px; }
+  .chapter-row { gap: 10px; padding: 14px 10px; }
+  .chapter-index { flex-basis: 34px; font-size: 11px; }
+  .chapter-title { font-size: 16px; }
+  .chapter-items .article-row { padding-left: 22px; }
+  .chapter-items .row-index { flex-basis: 34px; }
   .article-title { font-size: 16px; }
   .row-summary { -webkit-line-clamp: 2; font-size: 13px; }
   .row-meta { display: none; }

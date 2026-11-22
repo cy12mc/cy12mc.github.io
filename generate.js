@@ -191,6 +191,26 @@ function getSort(filename) {
 
 // 目录不再区分站务条目：严格按文件名前缀排序，全部连续编号
 
+// ── 章节：顶层文件夹 = 章节；嵌套文件夹不再成为章节，其中的文章扁平归入本章 ──
+function chapterName(dirName) {
+  return dirName.replace(/^\d+\s*[-_.]?\s*/, '').trim() || dirName;
+}
+
+function collectChapterMd(dir, relDir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const rel = relDir ? `${relDir}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      out.push(...collectChapterMd(path.join(dir, entry.name), rel));
+    } else if (entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'README.md') {
+      out.push({ file: entry.name, rel, abs: path.join(dir, entry.name) });
+    }
+  }
+  // 一个章节内扁平排序：先看文件名数字前缀，再用相对路径保证稳定
+  out.sort((a, b) => getSort(a.file) - getSort(b.file) || a.rel.localeCompare(b.rel));
+  return out;
+}
+
 // ── 模板渲染：单次函数替换，避免 $ 与公式内容被误解释 ──────────
 function renderTemplate(template, data) {
   return template.replace(/{{(\w+)}}/g, (match, key) =>
@@ -198,24 +218,27 @@ function renderTemplate(template, data) {
 }
 
 // 按用户要求删去「← 上一篇」，只保留「下一篇 →」
-function nextLink(article) {
-  if (!article) return '';
-  return `<a class="is-next" href="${escapeHtml(article.htmlFile)}">` +
+// 章节文章与顶层文章可能不在同一级目录，链接要按当前文件位置计算相对路径
+function nextLink(current, next) {
+  if (!next) return '';
+  let href = path.relative(path.dirname(current.absHtml), next.absHtml).split(path.sep).join('/');
+  if (!href.startsWith('.')) href = './' + href;
+  return `<a class="is-next" href="${escapeHtml(href)}">` +
     `<span class="nav-label">下一篇 →</span>` +
-    `<span class="nav-title">${escapeHtml(article.title)}</span></a>`;
+    `<span class="nav-title">${escapeHtml(next.title)}</span></a>`;
 }
 
 // ── 首页目录行 ──────────────────────────────────────────────
 function indexRow(a) {
-  const cls = 'article-row';
-  const idx = a.index;
+  const cls = a.chapterLabel ? 'article-row is-in-chapter' : 'article-row';
   const summary = a.summary
     ? `\n          <span class="row-summary">${escapeHtml(a.summary)}</span>` : '';
-  return `      <a class="${cls}" href="blogs/${escapeHtml(a.htmlFile)}"` +
+  return `      <a class="${cls}" href="blogs/${escapeHtml(a.htmlRel)}"` +
     ` data-title="${escapeHtml(a.title)}"` +
     ` data-summary="${escapeHtml(a.summary)}"` +
-    ` data-tags="${escapeHtml(a.tags.join(' '))}">` +
-    `\n        <span class="row-index">${idx}</span>` +
+    ` data-tags="${escapeHtml(a.tags.join(' '))}"` +
+    ` data-chapter="${escapeHtml(a.chapterLabel)}">` +
+    `\n        <span class="row-index">${a.index}</span>` +
     `\n        <span class="row-main">` +
     `\n          <span class="article-title">${escapeHtml(a.title)}</span>` + summary +
     `\n        </span>` +
@@ -223,66 +246,112 @@ function indexRow(a) {
     `\n      </a>`;
 }
 
-function updateIndex(articles) {
+// 章节行本身不是链接，而是一个可折叠按钮
+function chapterRow(chapter) {
+  return `      <button class="chapter-row" type="button"` +
+    ` aria-expanded="false" aria-controls="chapter-${chapter.num}">` +
+    `\n        <span class="chapter-index">第${chapter.num}章</span>` +
+    `\n        <span class="chapter-main">` +
+    `\n          <span class="chapter-title">${escapeHtml(chapter.name)}</span>` +
+    `\n          <span class="chapter-count">${chapter.articles.length} 篇</span>` +
+    `\n        </span>` +
+    `\n        <svg class="chapter-chevron" viewBox="0 0 24 24" aria-hidden="true">` +
+    `<polyline points="9 6 15 12 9 18"/></svg>` +
+    `\n      </button>`;
+}
+
+function updateIndex(items) {
   let html = fs.readFileSync(INDEX_HTML, 'utf-8');
   const marker = /(<!-- ARTICLES:START -->)[\s\S]*?(<!-- ARTICLES:END -->)/;
   if (!marker.test(html)) {
     throw new Error('index.html 缺少 <!-- ARTICLES:START/END --> 标记，无法更新目录');
   }
-  const items = articles.map(indexRow).join('\n');
-  html = html.replace(marker, (_, start, end) => `${start}\n${items}\n      ${end}`);
+  html = html.replace(marker, (_, start, end) => `${start}\n${items.join('\n')}\n      ${end}`);
   fs.writeFileSync(INDEX_HTML, html, 'utf-8');
 }
 
 // ── 主流程 ──────────────────────────────────────────────────
+function makeArticle(file, rel, abs) {
+  const raw = fs.readFileSync(abs, 'utf-8');
+  const { meta, content } = parseFrontmatter(raw);
+  const title = meta.title || file.replace(/\.md$/, '').replace(/^\d+-/, '');
+  const date = meta.date || fs.statSync(abs).mtime.toISOString().slice(0, 10);
+  const tags = meta.tags ? meta.tags.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const summary = meta.summary || extractSummary(content);
+  const htmlRel = rel.replace(/\.md$/, '.html');
+  return {
+    file, rel, abs, htmlRel,
+    absHtml: path.join(BLOGS_DIR, htmlRel),
+    title, date, tags, summary, content,
+    index: '', chapterLabel: ''
+  };
+}
+
 async function main() {
   const only = process.argv[2];
   const template = fs.readFileSync(TEMPLATE, 'utf-8');
 
-  let mdFiles = fs.readdirSync(BLOGS_DIR)
-    .filter(f => f.endsWith('.md') && f !== 'README.md')
-    .sort((a, b) => getSort(a) - getSort(b));
+  const entries = fs.readdirSync(BLOGS_DIR, { withFileTypes: true });
+  const rootFiles = entries
+    .filter(e => e.isFile() && e.name.endsWith('.md') && e.name !== 'README.md')
+    .map(e => e.name)
+    .sort((a, b) => getSort(a) - getSort(b) || a.localeCompare(b));
+  const chapterDirs = entries
+    .filter(e => e.isDirectory())
+    .map(e => e.name)
+    .sort((a, b) => getSort(a) - getSort(b) || a.localeCompare(b));
 
-  if (only) mdFiles = mdFiles.filter(f => f === only || f === path.basename(only));
-  if (mdFiles.length === 0) {
+  // 顶层文章：保持 01 / 02 / …，排在章节之前
+  const rootArticles = rootFiles.map(file => makeArticle(file, file, path.join(BLOGS_DIR, file)));
+  rootArticles.forEach((a, i) => { a.index = String(i + 1).padStart(2, '0'); });
+
+  // 顶层文件夹 = 章节；嵌套文件夹不再成为章节，里面的文章扁平归入本章
+  const chapters = chapterDirs.map((dirName, ci) => {
+    const num = ci + 1;
+    const chapter = { num, name: chapterName(dirName), articles: [] };
+    collectChapterMd(path.join(BLOGS_DIR, dirName), dirName).forEach(entry => {
+      const a = makeArticle(entry.file, entry.rel, entry.abs);
+      a.index = `${num}.${chapter.articles.length + 1}`;
+      a.chapterLabel = `第${num}章 ${chapter.name}`;
+      chapter.articles.push(a);
+    });
+    return chapter;
+  });
+
+  // 全局阅读顺序：顶层文章 → 第1章 → 第2章 …，用于「下一篇」
+  const ordered = rootArticles.concat(chapters.reduce((all, c) => all.concat(c.articles), []));
+  if (!ordered.length) {
     console.log('blogs/ 目录下没有可生成的文章。');
     return;
   }
+  console.log(`发现 ${ordered.length} 篇文章${chapters.length ? `、${chapters.length} 个章节` : ''}，开始生成...\n`);
 
-  console.log(`发现 ${mdFiles.length} 篇文章，开始生成...\n`);
-
-  const articles = mdFiles.map(file => {
-    const filePath = path.join(BLOGS_DIR, file);
-    const raw = fs.readFileSync(filePath, 'utf-8');
-    const { meta, content } = parseFrontmatter(raw);
-
-    const title = meta.title || file.replace(/\.md$/, '').replace(/^\d+-/, '');
-    const date = meta.date || fs.statSync(filePath).mtime.toISOString().slice(0, 10);
-    const tags = meta.tags ? meta.tags.split(',').map(s => s.trim()).filter(Boolean) : [];
-    const summary = meta.summary || extractSummary(content);
-    const htmlFile = file.replace(/\.md$/, '.html');
-
-    return { file, htmlFile, sort: getSort(file), title, date, tags, summary, content, index: '' };
-  });
-
-  // 严格按文件名的数字前缀排序，全部条目连续编号 01 / 02，不重排、不跳过
-  const ordered = articles.slice().sort((a, b) => a.sort - b.sort);
-  ordered.forEach((a, i) => { a.index = String(i + 1).padStart(2, '0'); });
+  const matches = a => !only || a.file === only || a.rel === only || path.basename(only) === a.file;
 
   ordered.forEach((a, i) => {
+    if (!matches(a)) return;
     const data = {
       TITLE: escapeHtml(a.title),
       DATE: escapeHtml(a.date),
       KIND: `NOTE ${a.index}`,
       TAGS: a.tags.length ? ' ' + a.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('') : '',
       CONTENT: mdToHtml(a.content),
-      NEXT: nextLink(ordered[i + 1])
+      NEXT: nextLink(a, ordered[i + 1]),
+      // 文章生成在 md 同目录，资源与返回目录的深度随章节层级变化
+      ROOT: '../'.repeat(a.htmlRel.split('/').length)
     };
-    fs.writeFileSync(path.join(BLOGS_DIR, a.htmlFile), renderTemplate(template, data), 'utf-8');
-    console.log(`  ${a.file} → ${a.htmlFile}`);
+    fs.mkdirSync(path.dirname(a.absHtml), { recursive: true });
+    fs.writeFileSync(a.absHtml, renderTemplate(template, data), 'utf-8');
+    console.log(`  ${a.rel} → ${a.htmlRel}`);
   });
 
-  updateIndex(ordered);
+  const indexItems = rootArticles.map(indexRow).concat(
+    chapters.filter(c => c.articles.length).map(c =>
+      chapterRow(c) + '\n      <div class="chapter-items" id="chapter-' + c.num + '" inert aria-hidden="true">\n' +
+      '        <div class="chapter-items-inner">\n' +
+      c.articles.map(indexRow).join('\n') + '\n        </div>\n      </div>')
+  );
+  updateIndex(indexItems);
   console.log('\n已更新 index.html 目录，完成。');
 }
 
