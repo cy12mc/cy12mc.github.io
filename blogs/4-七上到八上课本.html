@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>七上到八上课本 · cy12的数学小组</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <link rel="stylesheet" href="../assets/site.css">
+  <script>
+    try { if (localStorage.getItem('cy12-blog-theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="container article">
+    <nav class="article-top">
+      <a class="back-link" href="../index.html">← 所有笔记</a>
+      <button class="tool-btn" id="themeBtn" type="button" aria-label="切换深浅色" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></svg>
+      </button>
+    </nav>
+
+    <header class="article-head">
+      <p class="eyebrow">NOTE 04</p>
+      <h1>七上到八上课本</h1>
+      <p class="meta">2026-11-20</p>
+    </header>
+
+    <article class="content">
+      <h1>七上到八上沪教版数学课本资源（点击下载）</h1>
+<p><a href="https://api.gitproxy.dev/github.com/cy12mc/cy12mc.github.io/releases/download/1.1/7one.pdf">新版七上</a> <a href="https://api.gitproxy.dev/github.com/cy12mc/cy12mc.github.io/releases/download/7.2/7two.pdf">新版七下</a></p>
+
+<p><a href="https://api.gitproxy.dev/github.com/cy12mc/cy12mc.github.io/releases/download/8.1/8one.pdf">新版八上</a></p>
+    </article>
+
+    <nav class="note-nav" aria-label="下一篇笔记"><a class="is-next" href="./1-一元二次方程/1.1-基本知识.html"><span class="nav-label">下一篇 →</span><span class="nav-title">1.1-基本知识</span></a></nav>
+  </div>
+
+  <script src="../assets/site.js"></script>
+  <script>
+    /* 渲染正文中的数学公式（content 由 generate.js 生成，.math 元素带 data-tex） */
+    function renderMath(el) {
+      el.querySelectorAll('[data-tex]').forEach(function (n) {
+        var tex = decodeURIComponent(n.dataset.tex);
+        var display = n.closest('.math-display') !== null;
+        try {
+          katex.render(tex, n, { displayMode: display, throwOnError: false });
+        } catch (e) { n.textContent = tex; }
+      });
+    }
+    if (typeof katex !== 'undefined') {
+      renderMath(document.querySelector('.content'));
+    } else {
+      document.querySelector('script[src*="katex.min.js"]').addEventListener('load', function () {
+        renderMath(document.querySelector('.content'));
+      });
+    }
+  </script>
+</body>
+</html>

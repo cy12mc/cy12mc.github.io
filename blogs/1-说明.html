@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>说明 · cy12的数学小组</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <link rel="stylesheet" href="../assets/site.css">
+  <script>
+    try { if (localStorage.getItem('cy12-blog-theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="container article">
+    <nav class="article-top">
+      <a class="back-link" href="../index.html">← 所有笔记</a>
+      <button class="tool-btn" id="themeBtn" type="button" aria-label="切换深浅色" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></svg>
+      </button>
+    </nav>
+
+    <header class="article-head">
+      <p class="eyebrow">NOTE 01</p>
+      <h1>说明</h1>
+      <p class="meta">2026-11-20</p>
+    </header>
+
+    <article class="content">
+      <h1>关于这个网站</h1>
+<h2>为什么会访问慢？</h2>
+<p>网站托管在<a href="https://github.com">github</a>上，由于服务器在国外，访问可能会有点慢（尤其是图片），所以网站删去了动画和大部分图片，可能感觉生硬，不过换来了不错的性能。后续可能会通过腾讯服务加速。</p>
+<p>想要加速，可以下载<a href="https://steampp.net/">watt toolkit（旧称steam++）</a>。</p>
+<h2>网站干什么？</h2>
+<p>这是<span class="math" data-tex="cy12"></span>数学的官方网站。如果你不知道<span class="math" data-tex="cy12"></span>是谁（<span class="math" data-tex="y"></span>代表什么? 阴<span class="math" data-tex="or"></span>阳），请离开网站。此网站会分享一些有用有趣的数学知识，帮助你提高思维，共同进步。</p>
+<h2>成员名单</h2>
+<div class="table-wrap"><table><thead><tr><th>成员</th><th>说明</th></tr></thead><tbody><tr><td>cy12</td><td>组长/创始人</td></tr><tr><td>郑子涵</td><td>副组长/第一位成员</td></tr></tbody></table></div>
+<h2>联系我们</h2>
+<p><strong>欢迎指出问题或提供建议！</strong></p>
+
+<p><strong>电话/微信：</strong> 189 1796 7090</p>
+
+<p><strong>电子邮件：</strong> cy12main@163.com/cy12main@outlook.com</p>
+
+<p><strong>qq：</strong> 3903402699</p>
+    </article>
+
+    <nav class="note-nav" aria-label="下一篇笔记"><a class="is-next" href="./2-函数与函数的应用.html"><span class="nav-label">下一篇 →</span><span class="nav-title">函数与函数的应用</span></a></nav>
+  </div>
+
+  <script src="../assets/site.js"></script>
+  <script>
+    /* 渲染正文中的数学公式（content 由 generate.js 生成，.math 元素带 data-tex） */
+    function renderMath(el) {
+      el.querySelectorAll('[data-tex]').forEach(function (n) {
+        var tex = decodeURIComponent(n.dataset.tex);
+        var display = n.closest('.math-display') !== null;
+        try {
+          katex.render(tex, n, { displayMode: display, throwOnError: false });
+        } catch (e) { n.textContent = tex; }
+      });
+    }
+    if (typeof katex !== 'undefined') {
+      renderMath(document.querySelector('.content'));
+    } else {
+      document.querySelector('script[src*="katex.min.js"]').addEventListener('load', function () {
+        renderMath(document.querySelector('.content'));
+      });
+    }
+  </script>
+</body>
+</html>
